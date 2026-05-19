@@ -28,14 +28,12 @@ MAPEO_DEPARTAMENTOS = {
     21: "No Clasificado 🌀"
 }
 
-# --- CONTROL DE NAVEGACIÓN TOTALMENTE REESTRUCTURADO ---
+# --- CONTROL DE NAVEGACIÓN ---
 opciones_menu = ["✨ ¡Bienvenida y Datos Locos!", "🔮 El Oráculo del Carrito (Predicción)", "🏆 El Veredicto Final (Conclusiones)"]
 
-# Inicializar el índice si no existe
 if 'indice_pestana' not in st.session_state:
     st.session_state.indice_pestana = 0
 
-# Función callback que se activa cuando el usuario usa manualmente el menú lateral
 def actualizar_desde_radio():
     st.session_state.indice_pestana = opciones_menu.index(st.session_state.menu_lateral_radio)
 
@@ -43,7 +41,6 @@ def actualizar_desde_radio():
 st.sidebar.image("mago_instacart.png", use_container_width=True)
 st.sidebar.markdown("## 🧭 Central de Operaciones")
 
-# El secreto está en enlazar 'index' al estado e implementar el callback 'on_change'
 opcion = st.sidebar.radio(
     "Ir a:", 
     opciones_menu, 
@@ -51,6 +48,8 @@ opcion = st.sidebar.radio(
     key="menu_lateral_radio",
     on_change=actualizar_desde_radio
 )
+
+st.session_state.indice_pestana = opciones_menu.index(opcion)
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 🛠️ Código Fuente")
@@ -108,7 +107,6 @@ if st.session_state.indice_pestana == 0:
     plt.ylabel('Cantidad de Productos')
     st.pyplot(fig)
 
-    # Botón largo para avanzar (Actualiza el estado y recarga)
     st.markdown("<br><br>", unsafe_allow_html=True)
     if st.button("🔮 Siguiente: El Oráculo del Carrito ➡️", use_container_width=True):
         st.session_state.indice_pestana = 1
@@ -121,11 +119,15 @@ elif st.session_state.indice_pestana == 1:
     st.markdown("# 🔮 El Oráculo del Carrito de Compras")
     st.write("Configura tu comportamiento de compra y veamos si la Inteligencia Artificial descubre a qué departamento pertenece tu producto.")
     
+    # Configuración del modelo en la barra lateral
     st.sidebar.markdown("### 🎛️ Cerebro Digital")
     modelo_seleccionado = st.sidebar.selectbox(
         "Escoge el modelo que adivinará:",
         ["Random Forest (El Clásico)", "Hist-Gradient Boosting (El Veloz)"]
     )
+    
+    # MENSAJE DE GUÍA AÑADIDO: Explica dónde cambiar el modelo predictivo
+    st.info("💡 **Consejo de Mago:** Puedes cambiar el algoritmo predictivo en cualquier momento usando el menú **Cerebro Digital** en la barra lateral izquierda (debajo de la Central de Operaciones) para ver cómo cambian los resultados.")
     
     with st.container(border=True):
         st.subheader("🛒 Diseña tu Comportamiento de Compra")
@@ -174,7 +176,6 @@ elif st.session_state.indice_pestana == 1:
         else:
             st.error(f"⚠️ ¡Falta el archivo del modelo! Asegúrate de subir `{nombre_archivo}` dentro de la carpeta `modelos/` en tu GitHub.")
 
-    # Botones largos de navegación inferior corregidos
     st.markdown("<br><br>", unsafe_allow_html=True)
     btn_col1, btn_col2 = st.columns(2)
     with btn_col1:
@@ -206,7 +207,6 @@ elif st.session_state.indice_pestana == 2:
     st.warning("⚖️ **La trampa del Accuracy:** Como el dataset original está desbalanceado, el **F1-Score Macro** fue nuestra métrica brújula para garantizar que el modelo aprenda de todas las categorías por igual.")
     st.success("⚙️ **Optimización en la Nube:** Recortar el dataset y usar algoritmos basados en histogramas (`Hist-Gradient Boosting`) salvó nuestro entorno en Colab de morir por falta de memoria RAM.")
 
-    # Botón de navegación largo corregido para regresar
     st.markdown("<br><br>", unsafe_allow_html=True)
     if st.button("⬅️ Volver a: El Oráculo del Carrito", use_container_width=True):
         st.session_state.indice_pestana = 1
