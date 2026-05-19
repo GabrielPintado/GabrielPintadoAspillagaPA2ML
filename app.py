@@ -39,6 +39,12 @@ st.sidebar.markdown("---")
 st.sidebar.markdown("### 🛠️ Código Fuente")
 st.sidebar.link_button("🚀 Abrir Notebook en Google Colab", "https://colab.research.google.com/drive/1IT-1KWfAL5K_Ur0qMz9-WeWZZvzsMuE4#scrollTo=ZuQ26sKpGTod")
 
+# --- CRÉDITOS DEL ALUMNO ---
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 🎓 Identificación")
+st.sidebar.markdown("**Autor:** Gabriel Pintado Aspillaga")
+st.sidebar.markdown("**Código de estudiante:** 72501053")
+
 # --- DATASET SIMULADO PARA GRÁFICOS ---
 @st.cache_data
 def cargar_datos_locales():
