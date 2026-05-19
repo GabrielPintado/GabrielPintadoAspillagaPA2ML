@@ -5,5 +5,5 @@ Crea una app en streamlit en base al archivo que te mandé(el ipynb del colab) q
 2- Sección de predicción, donde el usuario pueda usar ambos modelos de predicción y lograr la predicción en base a caracteristicas que el usuario elija.
 3- Sección de conclusión, donde se determine el mejor modelo y se obtengan las conclusiones de los modelos.
 
-Todo con un tono divertido y en una pagina atractiva para el usuario, bajo una tematica de adivino o mago de las predicciones de instacart, que sea completamente interactiva y una gran experiencia para el usuario de la página de streamlit. Además añade un pequeño apartado para poder ingresar al link del colab con el codigo fuente del modelo (link)
+Todo con un tono divertido y en una pagina atractiva para el usuario, bajo una tematica de adivino o mago de las predicciones de instacart, que sea completamente interactiva y una gran experiencia para el usuario de la página de streamlit. Además añade un pequeño apartado para poder ingresar al link del colab con el codigo fuente del modelo (link). Por último añade en el final de la barra lateral lo siguiente: Autor:Gabriel Pintado Aspillaga.  Código:72501053.
 
