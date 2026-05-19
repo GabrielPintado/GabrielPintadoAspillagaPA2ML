@@ -7,7 +7,7 @@ import joblib
 import os
 import time
 
-# 1. CONFIGURACIÓN DE LA PÁGINA (Se cambió el ícono de la pestaña a solo el emoji del carrito)
+# 1. CONFIGURACIÓN DE LA PÁGINA (Ícono: solo el emoji del carrito 🛒)
 st.set_page_config(
     page_title="Instacart ML Magic Shopping",
     page_icon="🛒",
@@ -28,31 +28,29 @@ MAPEO_DEPARTAMENTOS = {
     21: "No Clasificado 🌀"
 }
 
-# --- CONTROL DE NAVEGACIÓN CORREGIDO ---
+# --- CONTROL DE NAVEGACIÓN TOTALMENTE REESTRUCTURADO ---
 opciones_menu = ["✨ ¡Bienvenida y Datos Locos!", "🔮 El Oráculo del Carrito (Predicción)", "🏆 El Veredicto Final (Conclusiones)"]
 
+# Inicializar el índice si no existe
 if 'indice_pestana' not in st.session_state:
     st.session_state.indice_pestana = 0
 
-# Función auxiliar para cambiar de pestaña de forma segura
-def cambiar_pestana(nuevo_indice):
-    st.session_state.indice_pestana = nuevo_indice
+# Función callback que se activa cuando el usuario usa manualmente el menú lateral
+def actualizar_desde_radio():
+    st.session_state.indice_pestana = opciones_menu.index(st.session_state.menu_lateral_radio)
 
 # --- BARRA LATERAL ESTILIZADA ---
 st.sidebar.image("mago_instacart.png", use_container_width=True)
 st.sidebar.markdown("## 🧭 Central de Operaciones")
 
-# El radio button ahora lee y actualiza directamente la variable de control usando 'key' e 'index'
+# El secreto está en enlazar 'index' al estado e implementar el callback 'on_change'
 opcion = st.sidebar.radio(
     "Ir a:", 
     opciones_menu, 
     index=st.session_state.indice_pestana,
     key="menu_lateral_radio",
-    on_change=lambda: cambiar_pestana(opciones_menu.index(st.session_state.menu_lateral_radio))
+    on_change=actualizar_desde_radio
 )
-
-# Sincronizamos el estado actual
-st.session_state.indice_pestana = opciones_menu.index(opcion)
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 🛠️ Código Fuente")
@@ -110,11 +108,10 @@ if st.session_state.indice_pestana == 0:
     plt.ylabel('Cantidad de Productos')
     st.pyplot(fig)
 
-    # Botón de navegación (Acción directa sobre el estado)
+    # Botón largo para avanzar (Actualiza el estado y recarga)
     st.markdown("<br><br>", unsafe_allow_html=True)
     if st.button("🔮 Siguiente: El Oráculo del Carrito ➡️", use_container_width=True):
         st.session_state.indice_pestana = 1
-        st.invalidate_pages() if hasattr(st, "invalidate_pages") else None  # Compatibilidad
         st.rerun()
 
 # ==========================================
@@ -177,7 +174,7 @@ elif st.session_state.indice_pestana == 1:
         else:
             st.error(f"⚠️ ¡Falta el archivo del modelo! Asegúrate de subir `{nombre_archivo}` dentro de la carpeta `modelos/` en tu GitHub.")
 
-    # Botones largos de navegación corregidos
+    # Botones largos de navegación inferior corregidos
     st.markdown("<br><br>", unsafe_allow_html=True)
     btn_col1, btn_col2 = st.columns(2)
     with btn_col1:
@@ -209,7 +206,7 @@ elif st.session_state.indice_pestana == 2:
     st.warning("⚖️ **La trampa del Accuracy:** Como el dataset original está desbalanceado, el **F1-Score Macro** fue nuestra métrica brújula para garantizar que el modelo aprenda de todas las categorías por igual.")
     st.success("⚙️ **Optimización en la Nube:** Recortar el dataset y usar algoritmos basados en histogramas (`Hist-Gradient Boosting`) salvó nuestro entorno en Colab de morir por falta de memoria RAM.")
 
-    # Botón de navegación largo corregido para volver
+    # Botón de navegación largo corregido para regresar
     st.markdown("<br><br>", unsafe_allow_html=True)
     if st.button("⬅️ Volver a: El Oráculo del Carrito", use_container_width=True):
         st.session_state.indice_pestana = 1
