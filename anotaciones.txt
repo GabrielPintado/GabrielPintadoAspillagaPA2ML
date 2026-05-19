@@ -1,0 +1,15 @@
+PROMPT UTILIZADO PARA EL DESARROLLO DE LA APLICACIÓN:
+"Actúa como un Ingeniero de Datos y Científico de Datos experto en Python y Streamlit. Necesito crear una aplicación web interactiva (`app.py`) basada en un análisis de canasta de compra con el dataset de Instacart. 
+
+La aplicación debe cumplir con los siguientes requisitos:
+1. Tener una interfaz limpia y profesional con un menú de navegación lateral (Sidebar) que incluya tres secciones: 'Inicio y Análisis Exploratorio (EDA)', 'Predicción del Modelo' y 'Conclusiones'.
+2. En la sección de EDA, mostrar métricas clave del dataset original (número de registros, columnas analizadas) y renderizar gráficos interactivos o descriptivos utilizando matplotlib y seaborn que muestren la distribución de pedidos según la hora del día y el día de la semana.
+3. En la sección de Predicción, permitir al usuario ingresar manualmente los valores de las siguientes características a través de componentes interactivos (selectores numéricos o de rango):
+   - Orden en que se agregó al carrito (`add_to_cart_order`)
+   - Si es un producto vuelto a pedir (`reordered` como un selector Sí/No o 1/0)
+   - Día de la semana en que se realizó el pedido (`order_dow` de 0 a 6)
+   - Hora del día del pedido (`order_hour_of_day` de 0 a 23)
+   - Días transcurridos desde el pedido anterior (`days_since_prior_order`)
+4. Cargar dinámicamente mediante `joblib` los dos modelos previamente entrenados y guardados en la carpeta `modelos/`: 'Random Forest' (`modelo_random_forest.pkl`) e 'Hist-Gradient Boosting' (`modelo_gradient_boosting.pkl`). El usuario debe poder seleccionar cuál modelo usar para predecir el ID del departamento (`department_id`).
+5. Mostrar el resultado de la predicción de forma clara y visual con un cuadro de éxito (success) de Streamlit.
+6. El código debe incluir un manejo de excepciones adecuado por si los archivos '.pkl' no se encuentran en la ruta especificada."
