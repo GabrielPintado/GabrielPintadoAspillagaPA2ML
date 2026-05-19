@@ -5,32 +5,39 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import joblib
 import os
+import time
 
-# Configuración de la página
+# 1. CONFIGURACIÓN DE LA PÁGINA (Con un emoji divertido)
 st.set_page_config(
-    page_title="Predicción Instacart - ML",
+    page_title="Instacart ML Magic Shopping",
+    page_icon="🛒",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Estilo de los gráficos
-sns.set_theme(style="whitegrid")
+# Estilo global para los gráficos
+sns.set_theme(style="darkgrid")
 
-# --- BARRA LATERAL (SIDEBAR) ---
-st.sidebar.image("https://upload.wikimedia.org/wikipedia/commons/9/9f/Instacart_logo.svg", width=200)
-st.sidebar.header("Navegación")
-opcion = st.sidebar.radio("Selecciona una sección:", ["Inicio y Análisis Exploratorio (EDA)", "Predicción con Modelos", "Conclusiones"])
+# Mapeo de prueba para hacer divertida la respuesta del department_id
+MAPEO_DEPARTAMENTOS = {
+    1: "Congelados 🧊", 2: "Otros ❓", 3: "Panadería 🍞", 4: "Frutas y Verduras 🍎",
+    5: "Alcohol 🍾", 6: "Internacional 🍣", 7: "Bebidas 🥤", 8: "Mascotas 🐶",
+    9: "Pastas y Arroz 🍝", 10: "A Granel 🥜", 11: "Cuidado Personal 🧴", 12: "Carnes y Pescados 🥩",
+    13: "Despensa 🍯", 14: "Desayunos 🥣", 15: "Enlatados 🥫", 16: "Lácteos y Huevos 🧀",
+    17: "Artículos del Hogar 🧹", 18: "Bebés 👶", 19: "Snacks y Bocaditos 🍿", 20: "Delicatessen 🥪",
+    21: "No Clasificado 🌀"
+}
+
+# --- BARRA LATERAL ESTILIZADA ---
+st.sidebar.image("https://upload.wikimedia.org/wikipedia/commons/9/9f/Instacart_logo.svg", width=180)
+st.sidebar.markdown("## 🧭 Central de Operaciones")
+opcion = st.sidebar.radio("Ir a:", ["✨ ¡Bienvenida y Datos Locos!", "🔮 El Oráculo del Carrito (Predicción)", "🏆 El Veredicto Final (Conclusiones)"])
 
 st.sidebar.markdown("---")
-st.sidebar.write("🔗 **Recursos Externos**")
-# Enlace solicitado a Google Colab
-st.sidebar.link_button("Ver Notebook en Google Colab", "https://colab.research.google.com/drive/1IT-1KWfAL5K_Ur0qMz9-WeWZZvzsMuE4#scrollTo=ZuQ26sKpGTod")
+st.sidebar.markdown("### 🛠️ Código Fuente")
+st.sidebar.link_button("🚀 Abrir Notebook en Google Colab", "https://colab.research.google.com/drive/1IT-1KWfAL5K_Ur0qMz9-WeWZZvzsMuE4#scrollTo=ZuQ26sKpGTod")
 
-# Título Principal
-st.title("📊 Análisis y Predicción de Canasta de Compra")
-st.markdown("---")
-
-# Simulación de datos basada en el muestreo de tu archivo .ipynb
+# --- DATASET SIMULADO PARA GRÁFICOS ---
 @st.cache_data
 def cargar_datos_locales():
     np.random.seed(42)
@@ -47,77 +54,91 @@ def cargar_datos_locales():
 
 df = cargar_datos_locales()
 
-# --- SECCIÓN 1: INICIO Y EDA ---
-if opcion == "Inicio y Análisis Exploratorio (EDA)":
-    st.header("📝 Introducción al Proyecto")
+# ==========================================
+# SECCIÓN 1: BIENVENIDA Y DATOS LOCOS
+# ==========================================
+if opcion == "✨ ¡Bienvenida y Datos Locos!":
+    st.markdown("# 🛒 ¡Bienvenido a Instacart ML Magic Shopping! 🛍️")
+    st.write("¡Una experiencia interactiva donde la Inteligencia Artificial adivina tus hábitos de consumo!")
     
-    col_intro1, col_intro2 = st.columns([2, 1])
+    # Mensaje de introducción llamativo
+    st.chat_message("assistant").write(
+        "👋 ¡Hola! Este dataset es un **recorte estratégico de más de 3 millones de registros originales** "
+        "reducido a 20,208 filas clave para entrenar nuestros modelos sin hacer explotar los servidores de Google Colab. "
+        "¡Explora las estadísticas abajo antes de poner a prueba el algoritmo!"
+    )
     
-    with col_intro1:
-        st.markdown(f"""
-        ### El Dataset: Instacart Market Basket Analysis
-        Este aplicativo utiliza datos de **Instacart**, una plataforma líder en entrega de comestibles. El conjunto de datos original es una base de datos relacional que contiene más de 3 millones de pedidos de comestibles de más de 200,000 usuarios de Instacart.
-        
-        **Objetivo del análisis:**
-        El objetivo es comprender el comportamiento de compra del usuario para predecir a qué categoría o **departamento** pertenecen los productos basándonos en hábitos temporales (hora, día) y de logística del carrito (orden de inserción).
-        
-        **Características utilizadas:**
-        - **add_to_cart_order:** Orden en el que se añadió el producto al carrito.
-        - **reordered:** Indica si el usuario ya había comprado este producto antes.
-        - **order_dow:** Día de la semana (0-6).
-        - **order_hour_of_day:** Hora del día en que se hizo el pedido (0-23).
-        - **days_since_prior_order:** Días transcurridos desde la última compra.
-        """)
-    
-    with col_intro2:
-        st.info("💡 **Acceso al Código:** Puedes revisar todo el proceso de limpieza, entrenamiento de modelos y exportación en el siguiente enlace:")
-        st.link_button("🚀 Abrir en Google Colab", "https://colab.research.google.com/drive/1IT-1KWfAL5K_Ur0qMz9-WeWZZvzsMuE4#scrollTo=ZuQ26sKpGTod")
-
     st.markdown("---")
-    st.header("📈 Análisis Exploratorio de Datos (EDA)")
+    st.subheader("📊 Datos Curiosos de la Muestra")
     
-    # Métricas Clave
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Registros en la Muestra", f"{df.shape[0]}")
-    col2.metric("Promedio Hora de Compra", "13.5 (1:30 PM)")
-    col3.metric("Clases Principales", "Top 5 Deptos")
+    # Tarjetas métricas interactivas
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        st.metric(label="🛍️ Productos en Canasta Analizados", value=f"{df.shape[0]} ítems")
+    with c2:
+        st.metric(label="⏰ Hora Pico de Compras", value="1:30 PM", delta="¡Hora del almuerzo!")
+    with c3:
+        st.metric(label="🔄 Clientes Fieles", value="59.3%", delta="Vuelven a pedir el producto")
+        
+    st.markdown("### 📈 ¿A qué hora compra la gente en Instacart?")
     
-    st.markdown("### Distribución de Pedidos según la Hora del Día")
-    fig, ax = plt.subplots(figsize=(10, 4))
-    sns.countplot(data=df, x='order_hour_of_day', palette='viridis', ax=ax)
-    plt.title('Concentración de pedidos por hora')
+    # Selector dinámico de color para el gráfico (¡Interactividad pura!)
+    color_grafico = st.selectbox("🎨 ¡Personaliza el color de la gráfica!", ["viridis", "magma", "plasma", "rocket", "crest"])
+    
+    fig, ax = plt.subplots(figsize=(10, 3.5))
+    sns.countplot(data=df, x='order_hour_of_day', palette=color_grafico, ax=ax)
+    plt.title('Concentración del volumen de pedidos según la hora del día')
+    plt.xlabel('Hora del Día (00:00 - 23:00)')
+    plt.ylabel('Cantidad de Productos')
     st.pyplot(fig)
 
-# --- SECCIÓN 2: PREDICCIÓN ---
-elif opcion == "Predicción con Modelos":
-    st.header("🔮 Predicción del Departamento")
-    st.write("Selecciona un modelo y configura los parámetros para predecir el `department_id` correspondiente.")
 
-    st.sidebar.header("Modelo Predictivo")
-    modelo_seleccionado = st.sidebar.selectbox(
-        "Escoge el modelo:",
-        ["Random Forest", "Hist-Gradient Boosting"]
-    )
-
-    st.subheader("Configuración del Pedido")
-    c1, c2 = st.columns(2)
+# ==========================================
+# SECCIÓN 2: PREDICCIÓN (EL JUEGO/ORÁCULO)
+# ==========================================
+elif opcion == "🔮 El Oráculo del Carrito (Predicción)":
+    st.markdown("# 🔮 El Oráculo del Carrito de Compras")
+    st.write("Configura tu comportamiento de compra y veamos si la Inteligencia Artificial descubre a qué departamento pertenece tu producto.")
     
-    with c1:
-        add_to_cart_order = st.number_input("Posición en el carrito:", min_value=1, max_value=50, value=5)
-        reordered = st.selectbox("¿Es re-compra?", options=[0, 1], format_func=lambda x: "Sí" if x == 1 else "No")
-        order_dow = st.slider("Día de la semana (0=Dom, 6=Sáb):", min_value=0, max_value=6, value=1)
-
-    with c2:
-        order_hour_of_day = st.slider("Hora del día:", min_value=0, max_value=23, value=12)
-        days_since_prior_order = st.number_input("Días desde el último pedido:", min_value=0.0, max_value=30.0, value=7.0)
-
-    nombre_archivo = "modelo_random_forest.pkl" if modelo_seleccionado == "Random Forest" else "modelo_gradient_boosting.pkl"
+    # Configuración del modelo en la barra lateral
+    st.sidebar.markdown("### 🎛️ Cerebro Digital")
+    modelo_seleccionado = st.sidebar.selectbox(
+        "Escoge el modelo que adivinará:",
+        ["Random Forest (El Clásico)", "Hist-Gradient Boosting (El Veloz)"]
+    )
+    
+    # Caja interactiva tipo contenedor
+    with st.container(border=True):
+        st.subheader("🛒 Diseña tu Comportamiento de Compra")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            add_to_cart_order = st.slider("🎒 ¿En qué orden metiste este producto al carrito?", min_value=1, max_value=30, value=4)
+            reordered = st.radio("🔄 ¿Ya habías comprado este artículo en el pasado?", options=[0, 1], format_func=lambda x: "👍 ¡Sí, ya lo conozco!" if x == 1 else "🆕 ¡No, es la primera vez!")
+            order_dow = st.select_slider("📅 ¿Qué día de la semana estás comprando?", options=[0, 1, 2, 3, 4, 5, 6], format_func=lambda x: ["Domingo 🏖️", "Lunes 📈", "Martes 🪵", "Miércoles ☕", "Jueves 🚀", "Viernes 🥳", "Sábado 🎮"][x])
+            
+        with col2:
+            order_hour_of_day = st.slider("🕒 ¿A qué hora estás haciendo click en 'Comprar'?", min_value=0, max_value=23, value=15)
+            days_since_prior_order = st.number_input("⏳ ¿Cuántos días pasaron desde tu última orden en Instacart?", min_value=0.0, max_value=30.0, value=7.0, step=0.5)
+            
+    # Mapeo del archivo .pkl correspondiente
+    nombre_archivo = "modelo_random_forest.pkl" if "Random Forest" in modelo_seleccionado else "modelo_gradient_boosting.pkl"
     ruta_modelo = os.path.join("modelos", nombre_archivo)
-
-    if st.button("🚀 Calcular Predicción"):
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Botón de acción con barra de progreso divertida
+    if st.button("🧙‍♂️ ¡Invocar Predicción de IA!", use_container_width=True):
         if os.path.exists(ruta_modelo):
             try:
+                # Simulación de carga misteriosa
+                with st.spinner('🔮 Consultando patrones en la base de datos de Instacart...'):
+                    time.sleep(1.2) # Efecto dramático de carga
+                
+                # Cargar el modelo guardado
                 modelo = joblib.load(ruta_modelo)
+                
+                # Crear estructura de datos idéntica a la del entrenamiento
                 features = pd.DataFrame([{
                     'add_to_cart_order': add_to_cart_order,
                     'reordered': reordered,
@@ -126,19 +147,42 @@ elif opcion == "Predicción con Modelos":
                     'days_since_prior_order': days_since_prior_order
                 }])
                 
-                prediccion = modelo.predict(features)[0]
-                st.success(f"### El producto probablemente pertenece al Departamento: {int(prediccion)}")
-                st.balloons()
+                # Predecir
+                prediccion = int(modelo.predict(features)[0])
+                
+                # Traducir predicción usando nuestro mapa divertido de departamentos
+                nombre_depto = MAPEO_DEPARTAMENTOS.get(prediccion, "Departamento Desconocido 🛰️")
+                
+                # Mostrar resultado con un diseño genial
+                st.balloons() # ¡Animación de globos!
+                st.success(f"### 🤖 ¡La IA ha determinado que tu producto pertenece al pasillo de:")
+                st.markdown(f"<h1 style='text-align: center; color: #2E7D32;'>{nombre_depto}</h1>", unsafe_allow_html=True)
+                st.info(f"🔢 **Identificador Técnico:** `department_id = {prediccion}` | 🧠 **Modelo Usado:** {modelo_seleccionado}")
+                
             except Exception as e:
-                st.error(f"Error al cargar el modelo: {e}")
+                st.error(f"❌ Error al procesar los datos: {e}")
         else:
-            st.error(f"Error: El archivo `{nombre_archivo}` no se encuentra en la carpeta `/modelos`.")
+            st.error(f"⚠️ ¡Falta el archivo del modelo! Asegúrate de subir `{nombre_archivo}` dentro de la carpeta `modelos/` en tu GitHub.")
 
-# --- SECCIÓN 3: CONCLUSIONES ---
-elif opcion == "Conclusiones":
-    st.header("📌 Resumen de Hallazgos")
-    st.markdown("""
-    1. **Modelado:** El modelo **Hist-Gradient Boosting** ofreció un balance superior en la métrica F1-Score para predecir los departamentos más populares.
-    2. **Fidelidad:** Un alto porcentaje de los productos en la canasta son re-compras (>59%), lo que sugiere una alta retención de clientes en categorías específicas.
-    3. **Notebook:** Todos los pasos técnicos están documentados y pueden ser replicados en el enlace de **Google Colab** ubicado en el menú lateral.
-    """)
+
+# ==========================================
+# SECCIÓN 3: CONCLUSIONES
+# ==========================================
+elif opcion == "🏆 El Veredicto Final (Conclusiones)":
+    st.markdown("# 🏆 Conclusiones del Laboratorio de Datos")
+    
+    st.markdown("### 🔥 Duelo Técnico: ¿Quién ganó el campeonato?")
+    
+    # Creación de una tabla visual e interactiva para comparar métricas
+    data_comparativa = {
+        "Métrica": ["Accuracy (Acierto Global)", "F1-Score (Macro)", "Velocidad de Carga"],
+        "Random Forest 🌲": ["44.11%", "0.1767", "Pesado (.pkl grande)"],
+        "Hist-Gradient Boosting ⚡": ["44.64%", "0.1901", "Ligero y Veloz (¡Ganador!)"]
+    }
+    df_metricas = pd.DataFrame(data_comparativa)
+    st.table(df_metricas)
+    
+    # Mensajes clave presentados en bloques elegantes
+    st.markdown("### 💡 Aprendizajes Clave")
+    st.warning("⚖️ **La trampa del Accuracy:** Como el dataset original está desbalanceado (hay departamentos con miles de compras y otros con muy pocas), el **F1-Score Macro** fue nuestra métrica brújula para garantizar que el modelo aprenda de todas las categorías por igual.")
+    st.success("⚙️ **Optimización en la Nube:** Recortar el dataset y usar algoritmos basados en histogramas (`Hist-Gradient Boosting`) salvó nuestro entorno en Colab de morir por falta de memoria RAM.")
