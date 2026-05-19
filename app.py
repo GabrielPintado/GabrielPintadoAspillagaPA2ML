@@ -7,10 +7,10 @@ import joblib
 import os
 import time
 
-# 1. CONFIGURACIÓN DE LA PÁGINA (Con tu logo personalizado como ícono de pestaña)
+# 1. CONFIGURACIÓN DE LA PÁGINA (Se cambió el ícono de la pestaña a solo el emoji del carrito)
 st.set_page_config(
     page_title="Instacart ML Magic Shopping",
-    page_icon="mago_instacart.png",
+    page_icon="🛒",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -18,7 +18,7 @@ st.set_page_config(
 # Estilo global para los gráficos
 sns.set_theme(style="darkgrid")
 
-# Mapeo de prueba para hacer divertida la respuesta del department_id
+# Mapeo para hacer divertida la respuesta del department_id
 MAPEO_DEPARTAMENTOS = {
     1: "Congelados 🧊", 2: "Otros ❓", 3: "Panadería 🍞", 4: "Frutas y Verduras 🍎",
     5: "Alcohol 🍾", 6: "Internacional 🍣", 7: "Bebidas 🥤", 8: "Mascotas 🐶",
@@ -28,24 +28,30 @@ MAPEO_DEPARTAMENTOS = {
     21: "No Clasificado 🌀"
 }
 
-# --- CONTROL DE NAVEGACIÓN MEDIANTE SESSION STATE ---
-# Esto permite que los botones inferiores cambien la pestaña activa del sidebar automáticamente
+# --- CONTROL DE NAVEGACIÓN CORREGIDO ---
+opciones_menu = ["✨ ¡Bienvenida y Datos Locos!", "🔮 El Oráculo del Carrito (Predicción)", "🏆 El Veredicto Final (Conclusiones)"]
+
 if 'indice_pestana' not in st.session_state:
     st.session_state.indice_pestana = 0
 
-# --- BARRA LATERAL ESTILIZADA (Utilizando tu nuevo logo en la raíz principal) ---
+# Función auxiliar para cambiar de pestaña de forma segura
+def cambiar_pestana(nuevo_indice):
+    st.session_state.indice_pestana = nuevo_indice
+
+# --- BARRA LATERAL ESTILIZADA ---
 st.sidebar.image("mago_instacart.png", use_container_width=True)
 st.sidebar.markdown("## 🧭 Central de Operaciones")
 
-opciones_menu = ["✨ ¡Bienvenida y Datos Locos!", "🔮 El Oráculo del Carrito (Predicción)", "🏆 El Veredicto Final (Conclusiones)"]
+# El radio button ahora lee y actualiza directamente la variable de control usando 'key' e 'index'
 opcion = st.sidebar.radio(
     "Ir a:", 
     opciones_menu, 
     index=st.session_state.indice_pestana,
-    key="menu_lateral"
+    key="menu_lateral_radio",
+    on_change=lambda: cambiar_pestana(opciones_menu.index(st.session_state.menu_lateral_radio))
 )
 
-# Sincronizar el estado por si el usuario hace click directo en el radio button
+# Sincronizamos el estado actual
 st.session_state.indice_pestana = opciones_menu.index(opcion)
 
 st.sidebar.markdown("---")
@@ -72,11 +78,10 @@ df = cargar_datos_locales()
 # ==========================================
 # SECCIÓN 1: BIENVENIDA Y DATOS LOCOS
 # ==========================================
-if opcion == "✨ ¡Bienvenida y Datos Locos!":
+if st.session_state.indice_pestana == 0:
     st.markdown("# 🛒 ¡Bienvenido a Instacart ML Magic Shopping! 🛍️")
     st.write("¡Una experiencia interactiva donde la Inteligencia Artificial adivina tus hábitos de consumo!")
     
-    # Mensaje de introducción llamativo
     st.chat_message("assistant").write(
         "👋 ¡Hola! Este dataset es un **recorte estratégico de más de 3 millones de registros originales** "
         "reducido a 20,208 filas clave para entrenar nuestros modelos sin hacer explotar los servidores de Google Colab. "
@@ -86,7 +91,6 @@ if opcion == "✨ ¡Bienvenida y Datos Locos!":
     st.markdown("---")
     st.subheader("📊 Datos Curiosos de la Muestra")
     
-    # Tarjetas métricas interactivas
     c1, c2, c3 = st.columns(3)
     with c1:
         st.metric(label="🛍️ Productos en Canasta Analizados", value=f"{df.shape[0]} ítems")
@@ -97,7 +101,6 @@ if opcion == "✨ ¡Bienvenida y Datos Locos!":
         
     st.markdown("### 📈 ¿A qué hora compra la gente en Instacart?")
     
-    # Selector dinámico de color para el gráfico
     color_grafico = st.selectbox("🎨 ¡Personaliza el color de la gráfica!", ["viridis", "magma", "plasma", "rocket", "crest"])
     
     fig, ax = plt.subplots(figsize=(10, 3.5))
@@ -107,27 +110,26 @@ if opcion == "✨ ¡Bienvenida y Datos Locos!":
     plt.ylabel('Cantidad de Productos')
     st.pyplot(fig)
 
-    # Botón largo inferior para avanzar
+    # Botón de navegación (Acción directa sobre el estado)
     st.markdown("<br><br>", unsafe_allow_html=True)
     if st.button("🔮 Siguiente: El Oráculo del Carrito ➡️", use_container_width=True):
         st.session_state.indice_pestana = 1
+        st.invalidate_pages() if hasattr(st, "invalidate_pages") else None  # Compatibilidad
         st.rerun()
 
 # ==========================================
 # SECCIÓN 2: PREDICCIÓN (EL JUEGO/ORÁCULO)
 # ==========================================
-elif opcion == "🔮 El Oráculo del Carrito (Predicción)":
+elif st.session_state.indice_pestana == 1:
     st.markdown("# 🔮 El Oráculo del Carrito de Compras")
     st.write("Configura tu comportamiento de compra y veamos si la Inteligencia Artificial descubre a qué departamento pertenece tu producto.")
     
-    # Configuración del modelo en la barra lateral
     st.sidebar.markdown("### 🎛️ Cerebro Digital")
     modelo_seleccionado = st.sidebar.selectbox(
         "Escoge el modelo que adivinará:",
         ["Random Forest (El Clásico)", "Hist-Gradient Boosting (El Veloz)"]
     )
     
-    # Caja interactiva tipo contenedor
     with st.container(border=True):
         st.subheader("🛒 Diseña tu Comportamiento de Compra")
         
@@ -141,24 +143,19 @@ elif opcion == "🔮 El Oráculo del Carrito (Predicción)":
             order_hour_of_day = st.slider("🕒 ¿A qué hora estás haciendo click en 'Comprar'?", min_value=0, max_value=23, value=15)
             days_since_prior_order = st.number_input("⏳ ¿Cuántos días pasaron desde tu última orden en Instacart?", min_value=0.0, max_value=30.0, value=7.0, step=0.5)
             
-    # Mapeo del archivo .pkl correspondiente
     nombre_archivo = "modelo_random_forest.pkl" if "Random Forest" in modelo_seleccionado else "modelo_gradient_boosting.pkl"
     ruta_modelo = os.path.join("modelos", nombre_archivo)
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # Botón de acción con barra de progreso divertida
     if st.button("🧙‍♂️ ¡Invocar Predicción de IA!", use_container_width=True):
         if os.path.exists(ruta_modelo):
             try:
-                # Simulación de carga misteriosa
                 with st.spinner('🔮 Consultando patrones en la base de datos de Instacart...'):
-                    time.sleep(1.2) # Efecto dramático de carga
+                    time.sleep(1.2)
                 
-                # Cargar el modelo guardado
                 modelo = joblib.load(ruta_modelo)
                 
-                # Crear estructura de datos idéntica a la del entrenamiento
                 features = pd.DataFrame([{
                     'add_to_cart_order': add_to_cart_order,
                     'reordered': reordered,
@@ -167,14 +164,10 @@ elif opcion == "🔮 El Oráculo del Carrito (Predicción)":
                     'days_since_prior_order': days_since_prior_order
                 }])
                 
-                # Predecir
                 prediccion = int(modelo.predict(features)[0])
-                
-                # Traducir predicción usando nuestro mapa de departamentos
                 nombre_depto = MAPEO_DEPARTAMENTOS.get(prediccion, "Departamento Desconocido 🛰️")
                 
-                # Mostrar resultado con un diseño genial
-                st.balloons() # ¡Animación de globos!
+                st.balloons()
                 st.success(f"### 🤖 ¡La IA ha determinado que tu producto pertenece al pasillo de:")
                 st.markdown(f"<h1 style='text-align: center; color: #2E7D32;'>{nombre_depto}</h1>", unsafe_allow_html=True)
                 st.info(f"🔢 **Identificador Técnico:** `department_id = {prediccion}` | 🧠 **Modelo Usado:** {modelo_seleccionado}")
@@ -184,7 +177,7 @@ elif opcion == "🔮 El Oráculo del Carrito (Predicción)":
         else:
             st.error(f"⚠️ ¡Falta el archivo del modelo! Asegúrate de subir `{nombre_archivo}` dentro de la carpeta `modelos/` en tu GitHub.")
 
-    # Botones largos de navegación inferior
+    # Botones largos de navegación corregidos
     st.markdown("<br><br>", unsafe_allow_html=True)
     btn_col1, btn_col2 = st.columns(2)
     with btn_col1:
@@ -199,12 +192,11 @@ elif opcion == "🔮 El Oráculo del Carrito (Predicción)":
 # ==========================================
 # SECCIÓN 3: CONCLUSIONES
 # ==========================================
-elif opcion == "🏆 El Veredicto Final (Conclusiones)":
+elif st.session_state.indice_pestana == 2:
     st.markdown("# 🏆 Conclusiones del Laboratorio de Datos")
     
     st.markdown("### 🔥 Duelo Técnico: ¿Quién ganó el campeonato?")
     
-    # Creación de una tabla visual e interactiva para comparar métricas
     data_comparativa = {
         "Métrica": ["Accuracy (Acierto Global)", "F1-Score (Macro)", "Velocidad de Carga"],
         "Random Forest 🌲": ["44.11%", "0.1767", "Pesado (.pkl grande)"],
@@ -213,12 +205,11 @@ elif opcion == "🏆 El Veredicto Final (Conclusiones)":
     df_metricas = pd.DataFrame(data_comparativa)
     st.table(df_metricas)
     
-    # Mensajes clave presentados en bloques elegantes
     st.markdown("### 💡 Aprendizajes Clave")
-    st.warning("⚖️ **La trampa del Accuracy:** Como el dataset original está desbalanceado (hay departamentos con miles de compras y otros con muy pocas), el **F1-Score Macro** fue nuestra métrica brújula para garantizar que el modelo aprenda de todas las categorías por igual.")
+    st.warning("⚖️ **La trampa del Accuracy:** Como el dataset original está desbalanceado, el **F1-Score Macro** fue nuestra métrica brújula para garantizar que el modelo aprenda de todas las categorías por igual.")
     st.success("⚙️ **Optimización en la Nube:** Recortar el dataset y usar algoritmos basados en histogramas (`Hist-Gradient Boosting`) salvó nuestro entorno en Colab de morir por falta de memoria RAM.")
 
-    # Botón largo inferior para retroceder
+    # Botón de navegación largo corregido para volver
     st.markdown("<br><br>", unsafe_allow_html=True)
     if st.button("⬅️ Volver a: El Oráculo del Carrito", use_container_width=True):
         st.session_state.indice_pestana = 1
